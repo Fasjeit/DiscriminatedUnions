@@ -16,32 +16,38 @@ namespace DiscriminatedUnions.Classic
         public string? Name { get; set; }
         public EnrollState State { get; set; }
         public EnrollData? Data { get; set; }
+        public Exception? Error { get; set; }
     }
 
     public static class EnrollProcessor
     {
         public static EnrollData GetData(Enroll enroll)
         {
-            if (enroll == null)
-            {
-                throw new ArgumentNullException(nameof(enroll));
-            }
+            ArgumentNullException.ThrowIfNull(enroll);
 
             switch (enroll.State)
             {
                 case EnrollState.Active:
                 case EnrollState.Disabled:
+                {
+                    if (enroll.Data == null)
                     {
-                        if (enroll.Data == null)
-                        {
-                            throw new NullReferenceException(nameof(enroll.Data));
-                        }
-                        return enroll.Data;
+                        throw new ArgumentException($"Enroll [{enroll.Id}:{enroll.Name ?? ""}] have no data.");
                     }
+                    return enroll.Data;
+                }
+                case EnrollState.Broken:
+                {
+                    if (enroll.Error != null)
+                    {
+                        throw new ArgumentException($"Enroll [{enroll.Id}] is broken, see inner Exception.", enroll.Error);
+                    }
+                    throw new ArgumentException($"Enroll [{enroll.Id}] is broken with no exception.");
+                }
                 default:
-                    {
-                        throw new ArgumentException($"Enroll [{enroll.Name ?? ""}] have no data.");
-                    }
+                {
+                    throw new ArgumentException($"Unexpected enroll state [{enroll.State}:{enroll.Name ?? ""}] for [{enroll.Id}].");
+                }
             }
         }
     };

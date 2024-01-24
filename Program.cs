@@ -17,10 +17,10 @@ class Program
         //
         // Enrolls always have Id: int. 
         //
-        // Enrolls should have non-null Name, Data and State
-        // for non-broken Enrolls.
+        // Non-broken Enrolls should have non-null Name, Data and State,
+        // and should not have Error.
         //
-        // Broken Enrolls only have Id field.
+        // Broken Enrolls only have Id and Error fields.
         //
         //
         ////////////////////////
@@ -50,7 +50,8 @@ class Program
             Id = 3,
             Name = "A_fail",
             State = EnrollState.Broken,
-            Data = null
+            Data = null, 
+            Error = new Exception("Cannot read from closed connection")
         };
 
         // change here
